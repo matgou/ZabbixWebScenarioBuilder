@@ -1,0 +1,7 @@
+[DEFAULT]
+zabbix_host=
+zabbix_user=
+zabbix_password=
+zabbix_hostid=
+zabbix_ignore_ext=.css,.js,.jpg,.jpeg,.ico,.png
+
