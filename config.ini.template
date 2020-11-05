@@ -1,7 +1,13 @@
 [DEFAULT]
+recording_timeout=300
+
+[ZABBIX]
 zabbix_host=
 zabbix_user=
 zabbix_password=
 zabbix_hostid=
 zabbix_ignore_ext=.css,.js,.jpg,.jpeg,.ico,.png
+
+[PROXY]
+port=3128
 

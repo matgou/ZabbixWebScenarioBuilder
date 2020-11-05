@@ -20,7 +20,6 @@ MarkupSafe==1.1.1
 mitmproxy==5.3.0
 msgpack==1.0.0
 passlib==1.7.4
-pkg-resources==0.0.0
 protobuf==3.13.0
 publicsuffix2==2.20191221
 pyasn1==0.4.8
