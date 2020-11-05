@@ -38,6 +38,14 @@ Run chrome (while captive proxy running) and navigate on your application:
 ```
   chromium --proxy-server="127.0.0.1:3128" https://photos.kapable.info
 ```
+
+#### On Chromium
+Chrome can ask you to accept proxy certificate
+![ValidateCert](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium1.png)
+![Step1](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium2.png)
+![Step2](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium3.png)
+![Step3](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium4.png)
+
 Finaly close navigator and captive proxy (Ctrl+C).
 
 ### Steap 2: Inject Scenario to Zabbix
@@ -48,3 +56,5 @@ Inject your WebScenario to zabbix
 ```
 
 ### Step 3: Check your scenario in zabbix
+
+![Zabbix WebScenario](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/zabbix_webscenario.png)
