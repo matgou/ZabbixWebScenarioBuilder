@@ -23,6 +23,13 @@ ZabbixWebScenarioBuilder use a file named `config.ini`. You must init this file 
 cp config.ini.template config.ini
 vi config.ini
 ```
+|  key             | description                                                 |
+|------------------|-------------------------------------------------------------|
+| zabbix_host      | Base URL of zabbix (ex: https://zabbix.example.com/zabbix ) |
+| zabbix_user      | API user to log on zabbix                                   |
+| zabbix_password  | API password corresponding to user                          |
+| zabbix_hostid    | Id of host (or Template) to inject generated webscenario    |
+| zabbix_ignore_ext | a list of extensions (end of url) to ignore (ex: .css, .js...) |
 
 ## Howto
 

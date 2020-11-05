@@ -1,9 +1,17 @@
+
+# -*- coding: utf-8 -*-
+"""
+main.py
+~~~~~~~
+
+Read mitmproxy flow output file and build a webservice call with it
+"""
+
 import json, sys
 from mitmproxy import io
 from mitmproxy.exceptions import FlowReadException
 from pyzabbix import ZabbixAPI
 import configparser
-import logging
 import logging.config
 
 if __name__ == '__main__':
@@ -55,10 +63,6 @@ if __name__ == '__main__':
                             post_data.append(field)
                     step['posts']=post_data
 
-                #            curl = 'curl -X ' + request.method + ' -d \'' + request.content + '\' ' + ' '.join(['-H ' + '"' + header[0] + ': ' + header[1] + '"' for header in request.headers])
-#                curl += " https://" + request.host + request.path
-#                print(curl)
-#            pri    nt("--")
                 if ignore_step == False:
                     logging.info('Step {} : {}'.format(i,json.dumps(step)))
                     steps.append(step)
