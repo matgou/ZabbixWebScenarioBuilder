@@ -2,7 +2,7 @@
 
 ## Description
 
-Website monitoring with zabbix is powerful, hit can check availability of website by perform httpcheck.
+Website monitoring with zabbix is powerful, it can check availability of website by perform httpcheck.
 
 But the UI to build Web-Scenario in Zabbix-Frontend is not easy to use. So ZabbixWebScenarioBuilder will record navigator http/https traffic and convert it to a Zabbix Webscenario.
 
