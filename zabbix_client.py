@@ -1,7 +1,8 @@
 import json
 import logging
 
-from pyzabbix import ZabbixAPI
+from pyzabbix import ZabbixAPI, ZabbixAPIException
+
 
 class ZabbixClientApi:
     def push(self, host_key, scenario_name, requests, filter):
@@ -22,14 +23,22 @@ class ZabbixClientApi:
                 for d in request.text.split('&'):
                     if d != '':
                         p = d.split('=')
-                        field = {'name': p[0], 'value': p[1]}
-                        post_data.append(field)
+                        if len(p) > 1:
+                            field = {'name': p[0], 'value': p[1]}
+                            post_data.append(field)
                 step['posts'] = post_data
-            if ignore_step == False:
+            if not ignore_step:
                 logging.info('Step {} : {}'.format(i, json.dumps(step)))
+                logging.info('Request data : {}'.format(request.text))
                 steps.append(step)
             i = i + 1
-        self.zapi.do_request('httptest.create', {'name': scenario_name, 'hostid': host_key, 'steps': steps})
+        try:
+            response=self.zapi.do_request('httptest.create', {'name': scenario_name, 'hostid': host_key, 'steps': steps})
+        except ZabbixAPIException as err:
+            response=str(err.error)
+            return response
+
+        return response['result']
 
     def __init__(self, config):
         self.config = config

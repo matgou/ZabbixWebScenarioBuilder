@@ -22,7 +22,7 @@ angular.module('zabbix_webscenario_builder', [])
             return value + (tail || ' …');
         };
     })
-.controller('MainController', ['$scope', '$http', function($scope, $http) {
+.controller('MainController', ['$scope', '$http', '$window', function($scope, $http, $window) {
     	$scope.appName = 'ZabbixWebScenarioBuilder';
     	$scope.requests = []
     	$scope.lock=false
@@ -50,6 +50,7 @@ angular.module('zabbix_webscenario_builder', [])
             });
         };
         $scope.clickSendZabbix = function() {
+            $scope.lock=true
             $http({
                 method: "POST",
                 url: "/push_zabbix",
@@ -58,8 +59,13 @@ angular.module('zabbix_webscenario_builder', [])
                     host_key: $scope.scenarioHostKey,
                     scenario_name: $scope.scenarioName,
                 }
-            }).then(function() {
-                $scope.lock=true
+            }).then(function(response) {
+                if(response.data.zapi_result.httptestids !== undefined) {
+                    zabbix_url='https://zabbix.kapable.info/httpconf.php?form=update&hostid=' + $scope.scenarioHostKey + '&httptestid='+response.data.zapi_result.httptestids[0]
+                    $window.location.href = zabbix_url
+                } else {
+                    alert('Error while send to zabbix : ' + response.data.zapi_result)
+                }
             }, function() {
                 alert('Error in recording')
             });
