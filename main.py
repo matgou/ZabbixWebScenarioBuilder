@@ -11,13 +11,16 @@ import logging.config
 import sys
 import threading
 import time
+import webbrowser
 
 from mitmproxy import http
 from mitmproxy.tools.main import mitmdump, cmdline, run
 from mitmproxy.tools import dump
-from local_proxy import WindowsProxy
 
-requests=[]
+from http_api import WebScenarioBuilderHttpServer
+from local_proxy import WindowsProxy
+from zabbix_client import ZabbixClientApi
+
 
 class CaptiveProxyDumper(dump.DumpMaster):
     _instance = None
@@ -29,14 +32,18 @@ class CaptiveProxyDumper(dump.DumpMaster):
 
     def __init__(self, opts):
         super().__init__(opts)
-        self.addons.add(CaptiveProxyAddon())
+        self.addonCaptive = CaptiveProxyAddon()
+        self.addons.add(self.addonCaptive)
         self.addons.remove(self.addons.get('termlog'))
         self.addons.remove(self.addons.get('dumper'))
 
 class CaptiveProxyAddon():
+    def __init__(self):
+        self.requests = []
+
     def request(self, flow: http.HTTPFlow) -> None:
         r=flow.request
-        requests.append(r)
+        self.requests.append(r)
         logging.info('{} {}://{}/{}'.format(r.method, r.scheme, r.host, r.path))
 
 class CaptiveProxy:
@@ -52,12 +59,19 @@ class CaptiveProxy:
 
     def start_recording(self):
         self.proxy_manager.activate_proxy()
+        CaptiveProxyDumper._instance.addonCaptive.requests = []
         return;
 
+    def get_requests(self):
+        return CaptiveProxyDumper._instance.addonCaptive.requests
+
     def stop_recording(self):
-        self.proxy_manager.desactivate_proxy()
-        time.sleep(2)
-        return;
+        try:
+            self.proxy_manager.desactivate_proxy()
+        except Exception:
+            logging.error('Error when desactive proxy')
+        time.sleep(1)
+        return CaptiveProxyDumper._instance.addonCaptive.requests
 
     def stop_proxy(self):
         """
@@ -102,7 +116,7 @@ def main():
     config = configparser.ConfigParser()
     config.read('config.ini')
 
-    """ Start the proxy and wait 5s for skype """
+    """ Start the proxy and wait 1s for starting time """
     proxy = CaptiveProxy(config['PROXY'])
     proxy_thread = threading.Thread(target=CaptiveProxy.start_proxy, args=(proxy,))
     proxy_thread.daemon = True
@@ -110,26 +124,21 @@ def main():
     time.sleep(1)
     proxy.server = CaptiveProxyDumper._instance
 
-    """ Parsing des arguments """
-    scenario_name = None
-    if len(sys.argv) > 1:
-        scenario_name = sys.argv[1]
-    #else:
-    #    scenario_name = input("Enter zabbix scenario name to create/update:")
-    logging.info("Using scenario name : {}".format(scenario_name))
+    zapi = ZabbixClientApi(config['ZABBIX'])
+
+    """ Start rest api """
+    api = WebScenarioBuilderHttpServer(config['API'])
+    api_thread = threading.Thread(target=WebScenarioBuilderHttpServer.run, args=(api,proxy,zapi,))
+    api_thread.daemon = True
+    api_thread.start()
+    webbrowser.open("http://127.0.0.1:{}".format(config['API']['recording_api_port']))
 
     """ Record flow """
-    logging.info('Start recording via captive proxy')
-    proxy.start_recording()
     try:
-        time.sleep(config['DEFAULT'].getint('recording_timeout', 300))
+        while True:
+            time.sleep(1)
     except KeyboardInterrupt:
-        logging.info('End of capture')
-    proxy.stop_recording()
-    logging.info('Stop recording via captive proxy')
-
-    """ Generate zabbix httptest """
-    print(requests)
+       True
 
     """ End of bash """
     logging.info('End of bash')
