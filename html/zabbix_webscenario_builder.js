@@ -34,6 +34,7 @@ angular.module('zabbix_webscenario_builder', [])
             }).then(function(response) {
                 $scope.lock=false;
                 $scope.requests=response.data.requests;
+                $scope.socket.close()
             }, function() {
                 alert('Error in recording')
             });
@@ -45,6 +46,29 @@ angular.module('zabbix_webscenario_builder', [])
                 data: ''
             }).then(function() {
                 $scope.lock=true
+                $scope.socket = new WebSocket("ws://127.0.0.1:3130/");
+                $scope.socket.onmessage = function(event) {
+                    console.log(`[message] Data received from server: ${event.data}`);
+                    console.log(JSON.parse(event.data))
+                    $scope.requests.push(JSON.parse(event.data))
+                    $scope.$apply();
+
+                };
+                $scope.socket.onopen = function(e) {
+                    console.log("[open] Connection established");
+                    console.log("Sending to server");
+                    $scope.socket.send("ZabbixWebScenarioEDI");
+                };
+                $scope.socket.onclose = function(event) {
+                  if (event.wasClean) {
+                    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                  } else {
+                    console.log('[close] Connection died');
+                  }
+                };
+                $scope.socket.onerror = function(error) {
+                  console.log(`[error] ${error.message}`);
+                };
             }, function() {
                 alert('Error in recording')
             });
@@ -61,7 +85,7 @@ angular.module('zabbix_webscenario_builder', [])
                 }
             }).then(function(response) {
                 if(response.data.zapi_result.httptestids !== undefined) {
-                    zabbix_url='https://zabbix.kapable.info/httpconf.php?form=update&hostid=' + $scope.scenarioHostKey + '&httptestid='+response.data.zapi_result.httptestids[0]
+                    zabbix_url= response.data.zapi_host + '/httpconf.php?form=update&hostid=' + $scope.scenarioHostKey + '&httptestid='+response.data.zapi_result.httptestids[0]
                     $window.location.href = zabbix_url
                 } else {
                     alert('Error while send to zabbix : ' + response.data.zapi_result)

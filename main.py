@@ -7,20 +7,22 @@ Read mitmproxy flow output file and build a webservice call with it
 """
 import asyncio
 import configparser
+import json
 import logging.config
 import sys
 import threading
 import time
 import webbrowser
+from functools import wraps, partial
 
+import janus as janus
 from mitmproxy import http
 from mitmproxy.tools.main import mitmdump, cmdline, run
 from mitmproxy.tools import dump
 
-from http_api import WebScenarioBuilderHttpServer
+from http_api import WebScenarioBuilderHttpServer, WebScenarioBuilderWebsocket
 from local_proxy import WindowsProxy
 from zabbix_client import ZabbixClientApi
-
 
 class CaptiveProxyDumper(dump.DumpMaster):
     _instance = None
@@ -37,14 +39,24 @@ class CaptiveProxyDumper(dump.DumpMaster):
         self.addons.remove(self.addons.get('termlog'))
         self.addons.remove(self.addons.get('dumper'))
 
+
 class CaptiveProxyAddon():
     def __init__(self):
         self.requests = []
+        self.websocket = None
+        self.queue = None
+        self.zapi = None
+
+    async def set_websocket(self, ws):
+        self.websocket = ws
+        self.queue = janus.Queue()
+        await ws.sendAll(self.queue.async_q)
 
     def request(self, flow: http.HTTPFlow) -> None:
         r=flow.request
         self.requests.append(r)
         logging.info('{} {}://{}/{}'.format(r.method, r.scheme, r.host, r.path))
+        self.queue.sync_q.put(r)
 
 class CaptiveProxy:
     """ =======================================================
@@ -104,8 +116,10 @@ class CaptiveProxy:
         run(CaptiveProxyDumper, cmdline.mitmdump, args, extra)
         return;
 
+    async def set_websocket(self, api_websocket):
+        await CaptiveProxyDumper._instance.addonCaptive.set_websocket(api_websocket)
 
-def main():
+async def main():
     """ =======================================================
      Main function
         ======================================================= """
@@ -124,6 +138,7 @@ def main():
     time.sleep(1)
     proxy.server = CaptiveProxyDumper._instance
 
+    """ Zabbix API """
     zapi = ZabbixClientApi(config['ZABBIX'])
 
     """ Start rest api """
@@ -132,6 +147,13 @@ def main():
     api_thread.daemon = True
     api_thread.start()
     webbrowser.open("http://127.0.0.1:{}".format(config['API']['recording_api_port']))
+
+    """ Start websocket """
+    api_websocket = WebScenarioBuilderWebsocket(config['API'])
+    websocket_thread = threading.Thread(target=WebScenarioBuilderWebsocket.run, args=(api_websocket,))
+    websocket_thread.daemon = True
+    websocket_thread.start()
+    await proxy.set_websocket(api_websocket)
 
     """ Record flow """
     try:
@@ -147,4 +169,4 @@ def main():
 
 """ Main entrypoint """
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
