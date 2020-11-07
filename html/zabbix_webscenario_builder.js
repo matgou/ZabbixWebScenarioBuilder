@@ -41,14 +41,15 @@ angular.module('zabbix_webscenario_builder', [])
             return value + (tail || ' …');
         };
     })
-.controller('MainController', ['$scope', '$http', '$window', function($scope, $http, $window) {
+.controller('MainController', ['$scope', '$http', '$window', '$filter', function($scope, $http, $window, $filter) {
     	$scope.appName = 'WebScenario EDI';
     	$scope.requests = []
+    	$scope.requestsIdx = {}
     	$scope.lock=false
     	$scope.showRequestParam = function(index) {
     	    console.log('show index ' + index)
-    	    $scope.currentRequest = $scope.requests[index]
-    	    console.log($scope.requests)
+    	    find = $filter('filter')($scope.requests, {'no':index}, true)
+    	    $scope.currentRequest = find[0]
     	}
         $scope.clickStop = function() {
             $http({
@@ -75,7 +76,8 @@ angular.module('zabbix_webscenario_builder', [])
                     console.log(`[message] Data received from server: ${event.data}`);
                     obj = JSON.parse(event.data)
                     console.log(obj)
-                    $scope.requests.push(obj)
+                    size = $scope.requests.push(obj);
+                    $scope.requestsIdx[obj.no] = size - 1;
                     $scope.$apply();
 
                 };
@@ -107,10 +109,11 @@ angular.module('zabbix_webscenario_builder', [])
                     filter: $scope.searchTxt,
                     host_key: $scope.scenarioHostKey,
                     scenario_name: $scope.scenarioName,
+                    requests: $filter('filter')($scope.requests, {'url':$scope.searchTxt})
                 }
             }).then(function(response) {
-                if(response.data.zapi_result.httptestids !== undefined) {
-                    zabbix_url= response.data.zapi_host + '/httpconf.php?form=update&hostid=' + $scope.scenarioHostKey + '&httptestid='+response.data.zapi_result.httptestids[0]
+                if(response.data.zapi_result[0].httptestid !== undefined) {
+                    zabbix_url= response.data.zapi_host + '/httpconf.php?form=update&hostid=' + response.data.zapi_result[0].hostid + '&httptestid='+response.data.zapi_result[0].httptestid
                     $window.location.href = zabbix_url
                 } else {
                     alert('Error while send to zabbix : ' + response.data.zapi_result)

@@ -73,7 +73,7 @@ class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
             if not 'filter' in data:
                 data['filter'] = ""
             zapi_result = self.server.zapi.push(data['host_key'], data['scenario_name'],
-                                                self.server.proxy.get_requests(), data['filter'])
+                                                data['requests'], data['filter'])
             response['requests'] = self.sluggifyRequests(self.server.proxy.get_requests())
             response['success'] = True
             response['zapi_host'] = self.server.zapi.config['zabbix_host']
@@ -89,7 +89,7 @@ class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith('/zabbix_host?q='):
             q=self.path[len('/zabbix_host?q='):]
-            response=self.server.zapi.request_host(q)
+            response=self.server.zapi.request_host(q) + self.server.zapi.request_template(q)
             content = json.dumps(response)
             self.send_response(200)
             self.send_header("Content-type", "text/unknown")

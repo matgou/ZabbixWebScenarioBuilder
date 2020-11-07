@@ -47,6 +47,12 @@ class CaptiveProxyAddon():
         self.websocket = None
         self.queue = None
         self.zapi = None
+        self.proxy_ignore_ext = []
+
+    async def set_config(self, config):
+        logging.info('fix config')
+        self.config = config
+        self.proxy_ignore_ext = config['PROXY']['proxy_ignore_ext'].split(',')
 
     async def set_websocket(self, ws):
         self.websocket = ws
@@ -55,9 +61,16 @@ class CaptiveProxyAddon():
 
     def request(self, flow: http.HTTPFlow) -> None:
         r = flow.request
-        self.requests.append(r)
-        logging.info('{} {}://{}/{}'.format(r.method, r.scheme, r.host, r.path))
-        self.queue.sync_q.put(r)
+        ignore_step = False
+        for ext in self.proxy_ignore_ext:
+            if r.path.endswith(ext):
+                ignore_step = True
+            if "{}?".format(ext) in r.path:
+                ignore_step = True
+        if not ignore_step:
+            self.requests.append(r)
+            logging.info('{} {}://{}/{}'.format(r.method, r.scheme, r.host, r.path))
+            self.queue.sync_q.put(r)
 
 
 class CaptiveProxy:
@@ -198,3 +211,6 @@ class CaptiveProxy:
 
     async def set_websocket(self, api_websocket):
         await CaptiveProxyDumper._instance.addonCaptive.set_websocket(api_websocket)
+
+    async def set_config(self, config):
+        await CaptiveProxyDumper._instance.addonCaptive.set_config(config)

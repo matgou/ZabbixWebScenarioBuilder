@@ -35,6 +35,7 @@ async def main():
     proxy_thread.daemon = True
     proxy_thread.start()
     time.sleep(1)
+    await proxy.set_config(config)
     proxy.server = CaptiveProxyDumper.instance
 
     """ Zabbix API """
