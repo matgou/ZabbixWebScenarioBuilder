@@ -26,6 +26,11 @@ angular.module('zabbix_webscenario_builder', [])
     	$scope.appName = 'ZabbixWebScenarioBuilder';
     	$scope.requests = []
     	$scope.lock=false
+    	$scope.showRequestParam = function(index) {
+    	    console.log('show index ' + index)
+    	    $scope.currentRequest = $scope.requests[index]
+    	    console.log($scope.requests)
+    	}
         $scope.clickStop = function() {
             $http({
                 method: "POST",
@@ -49,8 +54,9 @@ angular.module('zabbix_webscenario_builder', [])
                 $scope.socket = new WebSocket("ws://127.0.0.1:3130/");
                 $scope.socket.onmessage = function(event) {
                     console.log(`[message] Data received from server: ${event.data}`);
-                    console.log(JSON.parse(event.data))
-                    $scope.requests.push(JSON.parse(event.data))
+                    obj = JSON.parse(event.data)
+                    console.log(obj)
+                    $scope.requests.push(obj)
                     $scope.$apply();
 
                 };

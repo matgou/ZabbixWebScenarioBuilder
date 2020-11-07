@@ -239,7 +239,7 @@ async def main():
     webbrowser.open("http://127.0.0.1:{}".format(config['API']['recording_api_port']))
 
     """ Start websocket """
-    api_websocket = WebScenarioBuilderWebsocket(config['API'])
+    api_websocket = WebScenarioBuilderWebsocket(config['API'], zapi)
     websocket_thread = threading.Thread(target=WebScenarioBuilderWebsocket.run, args=(api_websocket,))
     websocket_thread.daemon = True
     websocket_thread.start()
