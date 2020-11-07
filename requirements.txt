@@ -39,3 +39,7 @@ urwid==2.1.2
 Werkzeug==1.0.1
 wsproto==0.15.0
 zstandard==0.14.0
+janus
+websockets
+simplejson
+winreg
