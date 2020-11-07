@@ -17,18 +17,16 @@ async def echo(websocket, path):
         await websocket.send(message)
 
 class WebScenarioBuilderWebsocket:
-    def __init__(self, config):
+    def __init__(self, config, zapi):
         super().__init__()
         self.port = int(config['recording_api_websocket_port'])
+        self.zapi = zapi
         self.connected = []
 
     async def sendAll(self, async_q):
         while True:
             r = await async_q.get()
-            url='{}://{}/{}'.format(r.scheme, r.host, r.path)
-            msg_obj = dict()
-            msg_obj['url'] = url
-            msg_obj['method'] = r.method
+            msg_obj = self.zapi.request_2_step(r)
             msg = json.dumps(msg_obj)
             logging.debug('Send "{}" to websocket ({} connected)'.format(msg,str(len(self.connected))))
             for ws in self.connected:
@@ -58,10 +56,7 @@ class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
     def sluggifyRequests(self, requests):
         r = []
         for request in requests:
-            r.append({
-                'method': request.method,
-                'url': '{}://{}{}'.format(request.scheme, request.host, request.path)
-            })
+            r.append(self.server.zapi.request_2_step(request))
         return r
 
     def do_POST(self):
