@@ -16,6 +16,14 @@ class ZabbixClientApi:
             self.counter = 0
         return self.counter
 
+    def request_host(self, q):
+        array=[]
+        hosts_result = self.zapi.do_request('host.get', {'search': {'name': '{}'.format(q)}})
+        logging.debug('Zabbix host search result : {}'.format(hosts_result))
+        for host in hosts_result['result']:
+            array.append({'value': host['host'], 'id': host['hostid']})
+        return array
+
     def request_2_step(self, request):
         counter = self.increaseCounter()
         step = {

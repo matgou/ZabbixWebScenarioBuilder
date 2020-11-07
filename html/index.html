@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <title>Zabbix WebScenario Builder</title>
+    <title>Zabbix WebScenario EDI</title>
 
     <!-- Bootstrap core CSS -->
     <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/typeaheadjs.css" rel="stylesheet">
 
     <style>
       .bd-placeholder-img {
@@ -136,7 +137,7 @@
   <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search" ng-model="searchTxt">
+  <input class="form-control form-control-dark w-100" type="text" placeholder="Filter" aria-label="Filter" ng-model="searchTxt">
 </nav>
 
 
@@ -149,9 +150,9 @@
           <form>
             <div class="form-group">
               <label for="scenarioHostKey">Host/Template Id</p></label>
-              <input type="text" class="form-control" id="scenarioHostKey" ng-model="scenarioHostKey">
+              <input type="text" class="form-control typeahead" id="scenarioHostKey" ng-model="scenarioHostKey">
               <label for="scenarioName">Scenario Name</p></label>
-              <input type="text" class="form-control" id="scenarioName" ng-model="scenarioName">
+              <input type="text" class="form-control typeahead" id="scenarioName" ng-model="scenarioName">
             </div>
           </form>
       </div>
@@ -202,6 +203,10 @@
             <div class="modal-body">
               <form>
                 <div class="form-group">
+                  <label for="nameInput">Name</label>
+                  <input type="text" class="form-control" id="nameInput" placeholder="http://www.example.com" ng-model="currentRequest.name">
+                </div>
+                <div class="form-group">
                   <label for="urlInput">URL</label>
                   <input type="text" class="form-control" id="urlInput" placeholder="http://www.example.com" ng-model="currentRequest.url">
                 </div>
@@ -213,7 +218,6 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
             </div>
           </div>
         </div>
@@ -233,7 +237,7 @@
           <tbody>
           <tr ng-repeat="request in requests|filter:{url:searchTxt}">
             <td>{{ request.name }}</td>
-            <td>{{ request.extra.method }} {{ request.url | cut:true:100:' ...' }}/</td>
+            <td>{{ request.extra.method }} {{ request.url | cut:true:100:' ...' }}</td>
             <td>delete /
               <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#requestParamModal" ng-click="showRequestParam(request.no)">
                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -253,6 +257,7 @@
     <script src="js/jquery-3.5.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/typeahead.bundle.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="zabbix_webscenario_builder.js"></script>
 

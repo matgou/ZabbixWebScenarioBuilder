@@ -3,7 +3,7 @@
 main.py
 ~~~~~~~
 
-Read mitmproxy flow output file and build a webservice call with it
+Start mitmproxy and a EDI in navigator to capture webtraffic and export request to zabbix
 """
 import asyncio
 import configparser
@@ -13,9 +13,9 @@ import threading
 import time
 import webbrowser
 
-from http_api import WebScenarioBuilderHttpServer, WebScenarioBuilderWebsocket
+from webserver.http_api import WebScenarioBuilderHttpServer, WebScenarioBuilderWebsocket
 from proxy.captive_proxy import CaptiveProxyDumper, CaptiveProxy
-from zabbix_client import ZabbixClientApi
+from zabbix.zabbix_client import ZabbixClientApi
 
 
 async def main():
@@ -57,7 +57,7 @@ async def main():
     """ Record flow """
     try:
         while True:
-            time.sleep(1)
+            asyncio.sleep(1)
     except KeyboardInterrupt:
         pass
 

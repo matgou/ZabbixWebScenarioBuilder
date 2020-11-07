@@ -87,8 +87,19 @@ class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
         return
 
     def do_GET(self):
-        self.path = '/html/{}'.format(self.path)
-        return http.server.SimpleHTTPRequestHandler.do_GET(self)
+        if self.path.startswith('/zabbix_host?q='):
+            q=self.path[len('/zabbix_host?q='):]
+            response=self.server.zapi.request_host(q)
+            content = json.dumps(response)
+            self.send_response(200)
+            self.send_header("Content-type", "text/unknown")
+            self.send_header("Content-Length", len(bytes(content, 'utf-8')))
+            self.end_headers()
+            self.wfile.write(bytes(content, 'utf-8'))
+            return
+        else:
+            self.path = '/html/{}'.format(self.path)
+            return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
 
 class WebScenarioBuilderHttpServer(HTTPServer):

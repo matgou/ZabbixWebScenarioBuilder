@@ -1,3 +1,22 @@
+var hostsKeys = new Bloodhound({
+  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  remote: {
+    url: '/zabbix_host?q=%QUERY',
+    wildcard: '%QUERY'
+  }
+});
+
+$('.typeahead').typeahead({
+    hint: true,
+    highlight: true,
+    minLenght: 3
+}, {
+  name: 'host-keys',
+  display: 'value',
+  source: hostsKeys
+});
+
 angular.module('zabbix_webscenario_builder', [])
 .filter('cut', function () {
         return function (value, wordwise, max, tail) {
@@ -23,7 +42,7 @@ angular.module('zabbix_webscenario_builder', [])
         };
     })
 .controller('MainController', ['$scope', '$http', '$window', function($scope, $http, $window) {
-    	$scope.appName = 'ZabbixWebScenarioBuilder';
+    	$scope.appName = 'WebScenario EDI';
     	$scope.requests = []
     	$scope.lock=false
     	$scope.showRequestParam = function(index) {
