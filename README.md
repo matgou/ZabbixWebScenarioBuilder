@@ -23,45 +23,31 @@ ZabbixWebScenarioBuilder use a file named `config.ini`. You must init this file 
 cp config.ini.template config.ini
 vi config.ini
 ```
-|  key             | description                                                 |
-|------------------|-------------------------------------------------------------|
-| zabbix_host      | Base URL of zabbix (ex: https://zabbix.example.com/zabbix ) |
-| zabbix_user      | API user to log on zabbix                                   |
-| zabbix_password  | API password corresponding to user                          |
-| zabbix_hostid    | Id of host (or Template) to inject generated webscenario    |
-| zabbix_ignore_ext | a list of extensions (end of url) to ignore (ex: .css, .js...) |
+|Section|  key             | description                                                 |
+|------|------------------|-------------------------------------------------------------|
+|ZABBIX| zabbix_host      | Base URL of zabbix (ex: https://zabbix.example.com/zabbix ) |
+|ZABBIX| zabbix_user      | API user to log on zabbix                                   |
+|ZABBIX| zabbix_password  | API password corresponding to user                          |
+|ZABBIX| zabbix_hostid    | Id of host (or Template) to inject generated webscenario    |
+|ZABBIX| zabbix_ignore_header | A list of extensions (end of url) of header to not put in webscenario |
+| API  | recording_api_port | A listen port on host to display UI                       |
+| API  | recording_api_websocket | A listen port on host to use for UI to fetch event via websocket|
+|PROXY | port             | A listen port for local captive proxy                       |
+|PROXY | proxy_ignore_ext | A list (comma separated) of all extension to not recording (ex: css) |
 
 ## Howto
 
-### Step 1: Record HTTP traffic Scenario
+#### Start application via main.py
 
-This step will create a `/tmp/trace_httpoutput.dump` file containing all http/https request and response.
-
-Start the captive proxy :
 ```
-  venv/bin/mitmdump -p 3128 -w /tmp/trace_httpoutput.dump
-```
-Run chrome (while captive proxy running) and navigate on your application:
-```
-  chromium --proxy-server="127.0.0.1:3128" https://photos.kapable.info
+  python main.py
 ```
 
-#### On Chromium
-Chrome can ask you to accept proxy certificate
-![ValidateCert](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium1.png)
-![Step1](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium2.png)
-![Step2](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium3.png)
-![Step3](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/chromium4.png)
+On start application will create a proxy on localhost (127.0.0.1:3128) and open the EDI :
+![Zabbix WebScenario EDI](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/EDI1.png)
 
-Finaly close navigator and captive proxy (Ctrl+C).
 
-### Steap 2: Inject Scenario to Zabbix
-
-Inject your WebScenario to zabbix
-```
-  python main.py /tmp/trace_httpoutput.dump SUPERVISION_SITE_PHOTOS
-```
-
-### Step 3: Check your scenario in zabbix
+### After clicking on "To Zabbix" button, scenario will be on Zabbix
 
 ![Zabbix WebScenario](https://github.com/matgou/zabbix_webscenario_builder/raw/main/documentation/zabbix_webscenario.png)
+

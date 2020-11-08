@@ -13,8 +13,8 @@ import threading
 import time
 import webbrowser
 
-from webserver.http_api import WebScenarioBuilderHttpServer, WebScenarioBuilderWebsocket
 from proxy.captive_proxy import CaptiveProxyDumper, CaptiveProxy
+from webserver.http_api import WebScenarioBuilderHttpServer, WebScenarioBuilderWebsocket
 from zabbix.zabbix_client import ZabbixClientApi
 
 

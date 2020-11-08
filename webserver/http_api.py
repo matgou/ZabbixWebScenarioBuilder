@@ -1,20 +1,17 @@
 import asyncio
 import functools
 import http
-import json
 import logging
-import os
-from asyncio import Future
-
-import websockets
-import simplejson as simplejson
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
+import simplejson as json
+import websockets
 
 
 async def echo(websocket, path):
     async for message in websocket:
         await websocket.send(message)
+
 
 class WebScenarioBuilderWebsocket:
     def __init__(self, config, zapi):
@@ -25,10 +22,10 @@ class WebScenarioBuilderWebsocket:
 
     async def sendAll(self, async_q):
         while True:
-            r = await async_q.get()
-            msg_obj = self.zapi.request_2_step(r)
+            f = await async_q.get()
+            msg_obj = self.zapi.request_2_step(f)
             msg = json.dumps(msg_obj)
-            logging.debug('Send "{}" to websocket ({} connected)'.format(msg,str(len(self.connected))))
+            logging.debug('Send "{}" to websocket ({} connected)'.format(msg, str(len(self.connected))))
             for ws in self.connected:
                 try:
                     await ws.send(msg)
@@ -52,6 +49,7 @@ class WebScenarioBuilderWebsocket:
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
 
+
 class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
     def sluggifyRequests(self, requests):
         r = []
@@ -65,16 +63,15 @@ class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
             self.server.proxy.start_recording()
             response['success'] = True
         if self.path == '/stop_recording':
-            response['requests'] = self.sluggifyRequests(self.server.proxy.stop_recording())
+            self.server.proxy.stop_recording()
             response['success'] = True
         if self.path == '/push_zabbix':
             self.data_string = self.rfile.read(int(self.headers['Content-Length']))
-            data = simplejson.loads(self.data_string)
+            data = json.loads(self.data_string)
             if not 'filter' in data:
                 data['filter'] = ""
             zapi_result = self.server.zapi.push(data['host_key'], data['scenario_name'],
                                                 data['requests'], data['filter'])
-            response['requests'] = self.sluggifyRequests(self.server.proxy.get_requests())
             response['success'] = True
             response['zapi_host'] = self.server.zapi.config['zabbix_host']
             response['zapi_result'] = zapi_result
@@ -88,8 +85,8 @@ class WebScenarioBuilderHttpRequestHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.startswith('/zabbix_host?q='):
-            q=self.path[len('/zabbix_host?q='):]
-            response=self.server.zapi.request_host(q) + self.server.zapi.request_template(q)
+            q = self.path[len('/zabbix_host?q='):]
+            response = self.server.zapi.request_host(q) + self.server.zapi.request_template(q)
             content = json.dumps(response)
             self.send_response(200)
             self.send_header("Content-type", "text/unknown")

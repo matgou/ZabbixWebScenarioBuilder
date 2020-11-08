@@ -59,7 +59,7 @@ class CaptiveProxyAddon():
         self.queue = janus.Queue()
         await ws.sendAll(self.queue.async_q)
 
-    def request(self, flow: http.HTTPFlow) -> None:
+    def response(self, flow: http.HTTPFlow) -> None:
         r = flow.request
         ignore_step = False
         for ext in self.proxy_ignore_ext:
@@ -70,7 +70,7 @@ class CaptiveProxyAddon():
         if not ignore_step:
             self.requests.append(r)
             logging.info('{} {}://{}/{}'.format(r.method, r.scheme, r.host, r.path))
-            self.queue.sync_q.put(r)
+            self.queue.sync_q.put(flow)
 
 
 class CaptiveProxy:

@@ -5,14 +5,15 @@ local_proxy.py
 
 This file references class to change proxy
 """
-import logging
-import winreg as winreg
 import ctypes
+import logging
 import time
+import winreg as winreg
 
 
 class WindowsProxy:
     """ This class can activate or unactive a proxy on windows """
+
     def set_key(self, name, value):
         _, reg_type = winreg.QueryValueEx(self.INTERNET_SETTINGS, name)
         winreg.SetValueEx(self.INTERNET_SETTINGS, name, 0, reg_type, value)
@@ -50,8 +51,9 @@ class WindowsProxy:
         INTERNET_OPTION_REFRESH = 37
         INTERNET_OPTION_SETTINGS_CHANGED = 39
         internet_set_option = ctypes.windll.Wininet.InternetSetOptionW
-        assert internet_set_option(0, INTERNET_OPTION_SETTINGS_CHANGED, 0, 0), 'Erreur lors du refresh de cache internet'
-        assert internet_set_option(0, INTERNET_OPTION_REFRESH, 0, 0),'Erreur lors du refresh de cache internet'
+        assert internet_set_option(0, INTERNET_OPTION_SETTINGS_CHANGED, 0,
+                                   0), 'Erreur lors du refresh de cache internet'
+        assert internet_set_option(0, INTERNET_OPTION_REFRESH, 0, 0), 'Erreur lors du refresh de cache internet'
 
 
 """ Main entrypoint """

@@ -58,7 +58,6 @@ angular.module('zabbix_webscenario_builder', [])
                 data: ''
             }).then(function(response) {
                 $scope.lock=false;
-                $scope.requests=response.data.requests;
                 $scope.socket.close()
             }, function() {
                 alert('Error in recording')
