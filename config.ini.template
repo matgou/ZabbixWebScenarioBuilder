@@ -1,15 +1,13 @@
-[DEFAULT]
-recording_timeout=300
-
 [API]
 recording_api_port=3129
+recording_api_websocket_port=3130
 
 [ZABBIX]
-zabbix_host=
-zabbix_user=
-zabbix_password=
-zabbix_ignore_ext=.css,.js,.jpg,.jpeg,.ico,.png
+zabbix_host=https://zabbix.example.com/zabbix
+zabbix_user=Admin
+zabbix_password=************
+zabbix_ignore_header=cookie,cache-control,max-age,upgrade-insecure-requests,user-agent
 
 [PROXY]
 port=3128
-
+proxy_ignore_ext=.css,.js,.jpg,.jpeg,.ico,.png,.woff2,.woff,.ttf
