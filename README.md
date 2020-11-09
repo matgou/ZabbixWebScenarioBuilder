@@ -1,4 +1,4 @@
-# ZabbixWebScenarioBuilder v1.0
+# ZabbixWebScenarioBuilder v0.0.2
 
 ## Description
 
