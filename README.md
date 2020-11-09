@@ -6,14 +6,33 @@ Website monitoring with zabbix is powerful, it can check availability of website
 
 But the UI to build Web-Scenario in Zabbix-Frontend is not easy to use. So ZabbixWebScenarioBuilder will record navigator http/https traffic and convert it to a Zabbix Webscenario.
 
+
+## Requirements
+
+This tools use python to work
+
+* Python >= 3.7
+* pip
+
 ## Install
 
 ### Init environment
+
+* On Debian Linux
 To Init environment use virtualenv and pip by running the following command (this example is for Debian):
 ```
 virtualenv --python=/usr/bin/python3 venv
 . venv/bin/activate
-pip install -r requirement
+pip install -r requirement.txt
+```
+
+* On windows
+To Init environment use virtualenv and pip by running the following command (this example is for Debian):
+```
+c:\Program Files\Python\Python38\python.exe -m pip install virtualenv --proxy=http://<ip_of_corporate_proxy>
+c:\Program Files\Python\Python38\python.exe -m pip virtualenv venv
+.\venv\Scripts\activate
+c:\Program Files\Python\Python38\python.exe -m pip install -r requirement.txt --proxy=http://<ip_of_corporate_proxy>
 ```
 
 ### Create config.ini
