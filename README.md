@@ -13,7 +13,7 @@ To Init environment use virtualenv and pip by running the following command (thi
 ```
 virtualenv --python=/usr/bin/python3 venv
 . venv/bin/activate
-pip -r requirement
+pip install -r requirement
 ```
 
 ### Create config.ini
