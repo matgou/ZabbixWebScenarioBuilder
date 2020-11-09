@@ -9,9 +9,9 @@ But the UI to build Web-Scenario in Zabbix-Frontend is not easy to use. So Zabbi
 ## Install
 
 ### Init environment
-To Init environment use virtualenv and pip by running the following command :
+To Init environment use virtualenv and pip by running the following command (this example is for Debian):
 ```
-virtualenv venv
+virtualenv --python=/usr/bin/python3 venv
 . venv/bin/activate
 pip -r requirement
 ```
