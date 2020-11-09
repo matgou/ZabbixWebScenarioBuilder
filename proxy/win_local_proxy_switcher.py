@@ -24,6 +24,23 @@ class WindowsProxy:
     def deleteKey(self, name):
         winreg.DeleteValue(self.INTERNET_SETTINGS, name)
 
+    def move_key_old(self, name):
+        try:
+            v=winreg.QueryValueEx(self.INTERNET_SETTINGS, name)
+            logging.info(v)
+            self.set_dword("{}_old".format(name), v[0])
+            self.deleteKey(name)
+        except Exception as e:
+            logging.exception('Error while manipulate {}'.format(name), e)
+
+    def restore_key_old(self, name):
+        try:
+            v=winreg.QueryValueEx(self.INTERNET_SETTINGS, '{}_old'.format(name))
+            self.set_dword(name, v[0])
+            self.deleteKey('{}_old', name)
+        except Exception as e:
+            logging.exception('Error while manipulate {}'.format(name), e)
+
     def activate_proxy(self):
         logging.debug('Activation du parametrage pour passer par le proxy')
         self.INTERNET_SETTINGS = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
@@ -31,6 +48,7 @@ class WindowsProxy:
                                                 0, winreg.KEY_ALL_ACCESS)
         self.set_key('ProxyEnable', 1)
         self.set_dword('ProxyServer', u'127.0.0.1:3128')
+        self.move_key_old('AutoConfigURL')
         winreg.CloseKey(self.INTERNET_SETTINGS)
         self.refreshWinCache()
         return
@@ -42,6 +60,7 @@ class WindowsProxy:
                                                 0, winreg.KEY_ALL_ACCESS)
         self.set_key('ProxyEnable', 0)
         self.deleteKey('ProxyServer')
+        self.restore_key_old('AutoConfigURL')
         winreg.CloseKey(self.INTERNET_SETTINGS)
         time.sleep(1)
         self.refreshWinCache()
