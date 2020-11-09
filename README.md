@@ -19,7 +19,7 @@ This tools use python to work
 ### Init environment
 
 * On Debian Linux
-To Init environment use virtualenv and pip by running the following command (this example is for Debian):
+To Init environment use virtualenv and pip by running the following command :
 ```
 virtualenv --python=/usr/bin/python3 venv
 . venv/bin/activate
@@ -27,7 +27,7 @@ pip install -r requirement.txt
 ```
 
 * On windows
-To Init environment use virtualenv and pip by running the following command (this example is for Debian):
+
 ```
 c:\Program Files\Python\Python38\python.exe -m pip install virtualenv --proxy=http://<ip_of_corporate_proxy>
 c:\Program Files\Python\Python38\python.exe -m pip virtualenv venv
