@@ -194,7 +194,7 @@ class CaptiveProxy:
         logging.info('Démarage du serveur proxy sur 127.0.0.1:{}'.format(self.listen_port))
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        args = ['-p', str(self.listen_port)]
+        args = ['-p', str(self.listen_port), '--set','ssl_insecure=true']
 
         def extra(args):
             if args.filter_args:
