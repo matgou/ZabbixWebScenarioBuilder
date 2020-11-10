@@ -24,7 +24,11 @@ class WebScenarioBuilderWebsocket:
         while True:
             f = await async_q.get()
             msg_obj = self.zapi.request_2_step(f)
-            msg = json.dumps(msg_obj)
+            try:
+                msg = json.dumps(msg_obj)
+            except Exception as ex:
+                msg_obj['extra'] = {}
+                msg = json.dumps(msg_obj)
             logging.debug('Send "{}" to websocket ({} connected)'.format(msg, str(len(self.connected))))
             for ws in self.connected:
                 try:

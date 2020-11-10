@@ -52,7 +52,7 @@ class ZabbixClientApi:
                 request_headers.append({'name': key, 'value': value})
         step = {
             'name': 'step {}'.format(counter),
-            'url': '{}://{}{}'.format(request.scheme, request.host, request.path),
+            'url': '{}://{}:{}{}'.format(request.scheme,request.host, request.port, request.path),
             'no': counter,
             'headers': request_headers,
             'status_codes': str(f.response.status_code),
@@ -67,16 +67,16 @@ class ZabbixClientApi:
         }
         if request.method == 'POST':
             post_data = []
-            post_data_raw = ''
+            post_data_raw = request.text
+            if post_data_raw == '':
+                post_data_raw = ' '
             for d in request.text.split('&'):
                 if d != '' and len(d) < 200:
                     p = d.split('=')
                     if len(p) > 1:
                         field = {'name': p[0], 'value': p[1]}
                         post_data.append(field)
-                    else:
-                        post_data_raw = request.text
-            if post_data_raw == '':
+            if post_data_raw == '' and len(post_data) > 0:
                 step['posts'] = post_data
             else:
                 step['posts'] = post_data_raw
@@ -112,11 +112,13 @@ class ZabbixClientApi:
                                                 {'httptestid': httptest_exist['result'][0]['httptestid'],
                                                  'step': steps})
             else:
-                response = self.zapi.do_request('httptest.create',
-                                                {'name': scenario_name, 'hostid': host_key, 'steps': steps})
+                create_request = {'name': scenario_name, 'hostid': host_key, 'steps': steps}
+                logging.debug(create_request)
+                response = self.zapi.do_request('httptest.create', create_request)
             response = self.zapi.do_request('httptest.get', {'filter': {'name': scenario_name, 'hostid': host_key}})
             logging.debug('Zabbix httptest.create response : {}'.format(response))
         except ZabbixAPIException as err:
+            logging.exception('Zabbix exception', err)
             response = str(err.error)
             return response
 
