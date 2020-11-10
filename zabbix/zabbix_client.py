@@ -69,7 +69,7 @@ class ZabbixClientApi:
             post_data = []
             post_data_raw = ''
             for d in request.text.split('&'):
-                if d != '':
+                if d != '' and len(d) < 200:
                     p = d.split('=')
                     if len(p) > 1:
                         field = {'name': p[0], 'value': p[1]}
@@ -78,23 +78,23 @@ class ZabbixClientApi:
                         post_data_raw = request.text
             if post_data_raw == '':
                 step['posts'] = post_data
-            # TODO voir pourquoi ca passe pas
-            # else:
-            #    step['post'] = post_data_raw
+            else:
+                step['posts'] = post_data_raw
         logging.debug('We have converted transaction to step object : {}'.format(step))
         return step
 
-    def push(self, host_key, scenario_name, requests, filter):
+    def push(self, host_key, scenario_name, requests, filterTxt):
         steps = []
         i = 0
         for request in requests:
             step = request
             del step['extra']
             step['no'] = i
-            # self.request_2_step(request)
-            logging.info('Step {} : {}'.format(i, json.dumps(step)))
-            steps.append(step)
-            i = i + 1
+            if filterTxt in step['url']:
+                # self.request_2_step(request)
+                logging.info('Step {} : {}'.format(i, json.dumps(step)))
+                steps.append(step)
+                i = i + 1
         try:
             hosts_result = self.zapi.do_request('host.get', {'filter': {'name': '{}'.format(host_key)}})
             logging.debug(hosts_result['result'])
