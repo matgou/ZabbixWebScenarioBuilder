@@ -6,7 +6,7 @@ recording_api_websocket_port=3130
 zabbix_host=https://zabbix.example.com/zabbix
 zabbix_user=Admin
 zabbix_password=************
-zabbix_ignore_header=cookie,cache-control,max-age,upgrade-insecure-requests,user-agent
+zabbix_ignore_header=Content-Length,cookie,cache-control,max-age,upgrade-insecure-requests,user-agent
 
 [PROXY]
 port=3128
