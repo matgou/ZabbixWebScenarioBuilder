@@ -46,9 +46,14 @@ angular.module('zabbix_webscenario_builder', [])
     	$scope.requests = []
     	$scope.requestsIdx = {}
     	$scope.lock=false
+    	$scope.delete = function(index) {
+    	    console.log('delete index ' + index)
+    	    $scope.requests.splice(index, 1)
+    	}
     	$scope.showRequestParam = function(index) {
     	    console.log('show index ' + index)
     	    find = $filter('filter')($scope.requests, {'no':index}, true)
+    	    console.log(find)
     	    $scope.currentRequest = find[0]
     	}
         $scope.clickStop = function() {
